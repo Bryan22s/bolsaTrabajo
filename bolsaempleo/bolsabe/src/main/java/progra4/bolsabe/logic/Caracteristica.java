@@ -15,8 +15,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-// Ignoramos "padre" y "hijos" para evitar recursión infinita en JSON.
-// En su lugar exponemos "padreId" con un getter manual.
+
 @JsonIgnoreProperties({"padre", "hijos"})
 public class Caracteristica {
 
@@ -26,7 +25,7 @@ public class Caracteristica {
 
     String nombre;
 
-    // Relación jerárquica: una caracteristica puede tener un padre
+
     @ManyToOne
     @JoinColumn(name = "padre_id")
     Caracteristica padre;

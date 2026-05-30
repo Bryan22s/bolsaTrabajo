@@ -20,7 +20,6 @@ public class Puesto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    // Empresa que publicó el puesto
     @ManyToOne
     @JoinColumn(name = "empresa_cedula")
     Empresa empresa;
@@ -37,7 +36,6 @@ public class Puesto {
 
     LocalDateTime fechaRegistro;
 
-    // Características requeridas para este puesto
     @OneToMany(mappedBy = "puesto", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<PuestoCaracteristica> caracteristicas;
 }

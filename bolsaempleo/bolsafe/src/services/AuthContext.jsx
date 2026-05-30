@@ -6,6 +6,7 @@ export const AuthContext = createContext()
 /**
  * AuthProvider: envuelve la app y provee:
  *   - user: objeto { rol, nombre, id } o null
+ *   - token: el JWT string o null
  *   - login(userData, token), logout()
  *   - loginModalOpen / setLoginModalOpen
  *
@@ -16,7 +17,10 @@ export function AuthProvider({ children }) {
     const [user, setUser]                     = useState(null)
     const [loginModalOpen, setLoginModalOpen] = useState(false)
 
-    // Restaurar sesión al montar (recarga de página)
+    /**
+     * Al montar el componente, intentar restaurar la sesión
+     * desde localStorage (token + datos guardados).
+     */
     useEffect(() => {
         const savedToken = getToken()
         const savedUser  = localStorage.getItem('user')
@@ -25,12 +29,18 @@ export function AuthProvider({ children }) {
             try {
                 setUser(JSON.parse(savedUser))
             } catch {
+                // Si el JSON está corrupto, limpiar
                 removeToken()
                 localStorage.removeItem('user')
             }
         }
     }, [])
 
+    /**
+     * login: guarda el token en localStorage y el usuario en el estado.
+     * @param {Object} userData  { rol, nombre, id }
+     * @param {string} token     el JWT string
+     */
     const login = (userData, token) => {
         saveToken(token)
         localStorage.setItem('user', JSON.stringify(userData))
@@ -38,6 +48,9 @@ export function AuthProvider({ children }) {
         setLoginModalOpen(false)
     }
 
+    /**
+     * logout: limpia el token y el estado.
+     */
     const logout = () => {
         removeToken()
         localStorage.removeItem('user')
@@ -57,6 +70,7 @@ export function AuthProvider({ children }) {
     )
 }
 
+/** Hook personalizado para consumir el contexto */
 export function useAuth() {
     return useContext(AuthContext)
 }

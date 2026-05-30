@@ -2,53 +2,62 @@ import { NavLink } from 'react-router'
 import { useAuth } from '../context/AuthContext'
 
 function Navbar() {
-  const { user, logout, setLoginModalOpen } = useAuth()
+    const { user, logout, setLoginModalOpen } = useAuth()
 
-  return (
-    <nav className="navbar">
-      {/* Logo / inicio */}
-      <NavLink to="/" className="nav-brand">
-        <span className="brand-icon">💼</span>
-        BolsaEmpleo
-      </NavLink>
+    // Ruta del dashboard según el rol del usuario
+    const dashboardPath =
+        user?.rol === 'ADMIN'    ? '/admin/dashboard'    :
+            user?.rol === 'EMPRESA'  ? '/empresa/dashboard'  :
+                user?.rol === 'OFERENTE' ? '/oferente/dashboard' : null
 
-      {/* Links de navegación */}
-      <div className="nav-links">
-        <NavLink to="/buscar"
-          className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-          Buscar
-        </NavLink>
+    return (
+        <nav className="navbar">
+            <NavLink to="/" className="nav-brand">
+                <span className="brand-icon">💼</span>
+                BolsaEmpleo
+            </NavLink>
 
-        <NavLink to="/empresa/registro"
-          className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-          Empresa
-        </NavLink>
+            <div className="nav-links">
+                <NavLink to="/buscar"
+                         className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+                    Buscar
+                </NavLink>
 
-        <NavLink to="/oferente/registro"
-          className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-          Oferente
-        </NavLink>
+                <NavLink to="/empresa/registro"
+                         className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+                    Empresa
+                </NavLink>
 
-        {/* Si no está logueado: botón Login */}
-        {!user && (
-          <button className="nav-link btn-login" onClick={() => setLoginModalOpen(true)}>
-            Login
-          </button>
-        )}
+                <NavLink to="/oferente/registro"
+                         className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+                    Oferente
+                </NavLink>
 
-        {/* Si está logueado: muestra nombre, rol y botón Salir */}
-        {user && (
-          <div className="nav-user">
-            <span className="nav-user-info">
+                {/* Sin login: botón Login */}
+                {!user && (
+                    <button className="nav-link btn-login" onClick={() => setLoginModalOpen(true)}>
+                        Login
+                    </button>
+                )}
+
+                {/* Con login: Dashboard + nombre + Salir */}
+                {user && (
+                    <div className="nav-user">
+                        <NavLink
+                            to={dashboardPath}
+                            className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+                            🏠 Mi Panel
+                        </NavLink>
+                        <span className="nav-user-info">
               <strong>{user.nombre}</strong>
               <small>({user.rol})</small>
             </span>
-            <button className="btn-logout" onClick={logout}>Salir</button>
-          </div>
-        )}
-      </div>
-    </nav>
-  )
+                        <button className="btn-logout" onClick={logout}>Salir</button>
+                    </div>
+                )}
+            </div>
+        </nav>
+    )
 }
 
 export default Navbar

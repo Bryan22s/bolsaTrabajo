@@ -23,16 +23,16 @@ public class PuestoCaracteristica {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    // Relacion con Puesto (no se serializa, evita circular reference)
+
     @ManyToOne
     @JoinColumn(name = "puesto_id")
     Puesto puesto;
 
-    // Relacion con Caracteristica (SÍ se serializa: { id, nombre, padreId })
+
     @ManyToOne
     @JoinColumn(name = "caracteristica_id")
     Caracteristica caracteristica;
 
-    // Nivel requerido (1-5)
+
     Integer nivel;
 }

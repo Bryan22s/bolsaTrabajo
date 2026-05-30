@@ -24,9 +24,7 @@ public class Oferente {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String clave;
 
-    // false = pendiente de aprobacion por admin
     Boolean aprobado = false;
 
-    // URL del curriculum PDF subido (se usa en avance posterior)
     String curriculumUrl;
 }

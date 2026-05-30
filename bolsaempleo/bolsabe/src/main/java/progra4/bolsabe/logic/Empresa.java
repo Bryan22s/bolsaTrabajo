@@ -23,11 +23,10 @@ public class Empresa {
     @Column(columnDefinition = "TEXT")
     String descripcion;
 
-    // WRITE_ONLY: se recibe en POST/PUT pero NO se devuelve en GET (seguridad)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String clave;
 
-    // false = pendiente de aprobacion por admin
+
     Boolean aprobada = false;
 
     LocalDateTime fechaRegistro;
