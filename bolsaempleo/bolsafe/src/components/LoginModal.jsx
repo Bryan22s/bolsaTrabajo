@@ -15,14 +15,14 @@ const modalStyles = {
         padding: '24px',
         boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
     },
-    overlay: {
-        backgroundColor: 'rgba(0, 0, 0, 0.5)'
-    }
+    overlay: { backgroundColor: 'rgba(0, 0, 0, 0.5)' }
 }
+
+const EMPTY_CREDS = { usuario: '', clave: '' }
 
 function LoginModal() {
     const { loginModalOpen, setLoginModalOpen, login } = useAuth()
-    const [creds, setCreds]     = useState({ usuario: '', clave: '' })
+    const [creds, setCreds]     = useState(EMPTY_CREDS)
     const [error, setError]     = useState('')
     const [loading, setLoading] = useState(false)
 
@@ -31,15 +31,18 @@ function LoginModal() {
         setError('')
     }
 
+    const limpiar = () => {
+        setCreds(EMPTY_CREDS)
+        setError('')
+    }
+
     const handleLogin = async () => {
         if (!creds.usuario || !creds.clave) {
             setError('Por favor complete todos los campos')
             return
         }
-
         setLoading(true)
         try {
-            // URL relativa: funciona tanto en dev (Vite proxy) como en prod (mismo servidor)
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -56,6 +59,9 @@ function LoginModal() {
 
             const data = await response.json()
             const { token, ...userData } = data
+
+            // Limpiar campos ANTES de cerrar para que no queden al reabrir
+            limpiar()
             login(userData, token)
 
         } catch {
@@ -67,8 +73,7 @@ function LoginModal() {
 
     const handleClose = () => {
         setLoginModalOpen(false)
-        setCreds({ usuario: '', clave: '' })
-        setError('')
+        limpiar()
     }
 
     const handleKeyDown = (e) => {
@@ -100,6 +105,7 @@ function LoginModal() {
                         onKeyDown={handleKeyDown}
                         placeholder="correo@empresa.com"
                         className="form-input"
+                        autoComplete="off"
                     />
                 </div>
 
@@ -114,21 +120,17 @@ function LoginModal() {
                         onKeyDown={handleKeyDown}
                         placeholder="••••••••"
                         className="form-input"
+                        autoComplete="new-password"
                     />
                 </div>
 
                 {error && <p className="error-msg">{error}</p>}
 
                 <div className="modal-buttons">
-                    <button
-                        className="btn btn-primary"
-                        onClick={handleLogin}
-                        disabled={loading}>
+                    <button className="btn btn-primary" onClick={handleLogin} disabled={loading}>
                         {loading ? 'Ingresando...' : 'Ingresar'}
                     </button>
-                    <button
-                        className="btn btn-secondary"
-                        onClick={handleClose}>
+                    <button className="btn btn-secondary" onClick={handleClose}>
                         Cancelar
                     </button>
                 </div>

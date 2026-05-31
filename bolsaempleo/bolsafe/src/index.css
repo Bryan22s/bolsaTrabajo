@@ -898,3 +898,65 @@ body {
     font-weight: normal;
     color: #1565c0;
 }
+
+
+/* ================================================
+   AGREGAR AL FINAL DE index.css
+   ================================================ */
+
+/* Popup flotante de detalles del puesto (position:fixed, no afecta layout) */
+.puesto-popup-flotante {
+    width: 270px;
+    background: #fff;
+    border: 1.5px solid #1565c0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    box-shadow: 0 8px 24px rgba(21, 101, 192, 0.18);
+    pointer-events: auto;
+    animation: popupFadeIn 0.15s ease;
+}
+
+@keyframes popupFadeIn {
+    from { opacity: 0; transform: translateX(-6px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.popup-empresa {
+    font-size: 0.78rem;
+    color: #888;
+    margin-bottom: 3px;
+}
+
+.popup-descripcion {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 3px;
+}
+
+.popup-salario {
+    font-size: 0.9rem;
+    color: #1565c0;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.popup-divider {
+    border-top: 1px solid #e3f2fd;
+    margin: 8px 0;
+}
+
+.popup-requisitos-title {
+    font-size: 0.85rem;
+    color: #1565c0;
+    margin-bottom: 6px;
+}
+
+.popup-requisitos {
+    list-style: none;
+    font-size: 0.82rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: #444;
+}

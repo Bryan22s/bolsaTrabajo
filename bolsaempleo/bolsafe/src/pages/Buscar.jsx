@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { apiFetch } from '../services/api'
-import DetalleModal from '../components/DetalleModal'
+import PuestoCard from '../components/PuestoCard'
 
 function buildTree(items, parentId = null) {
     return items
@@ -16,9 +16,7 @@ function Buscar() {
     const [seleccionadas, setSeleccionadas]     = useState([])
     const [resultados, setResultados]           = useState([])
     const [loading, setLoading]                 = useState(false)
-    const [selectedPuesto, setSelectedPuesto]   = useState(null)
 
-    // Carga todos los puestos al entrar a la página
     useEffect(() => {
         apiFetch('/api/caracteristicas')
             .then(res => res.json())
@@ -49,9 +47,7 @@ function Buscar() {
         )
     }
 
-    const handleBuscar = () => {
-        cargarPuestos(seleccionadas)
-    }
+    const handleBuscar = () => cargarPuestos(seleccionadas)
 
     const handleLimpiar = () => {
         setSeleccionadas([])
@@ -64,20 +60,16 @@ function Buscar() {
                 <label className="checkbox-label">
                     {nodo.children && nodo.children.length > 0 ? (
                         <>
-                            <input
-                                type="checkbox"
-                                checked={seleccionadas.includes(nodo.id)}
-                                onChange={() => toggleCaracteristica(nodo.id)}
-                            />
+                            <input type="checkbox"
+                                   checked={seleccionadas.includes(nodo.id)}
+                                   onChange={() => toggleCaracteristica(nodo.id)} />
                             <strong>{nodo.nombre}</strong>
                         </>
                     ) : (
                         <>
-                            <input
-                                type="checkbox"
-                                checked={seleccionadas.includes(nodo.id)}
-                                onChange={() => toggleCaracteristica(nodo.id)}
-                            />
+                            <input type="checkbox"
+                                   checked={seleccionadas.includes(nodo.id)}
+                                   onChange={() => toggleCaracteristica(nodo.id)} />
                             {nodo.nombre}
                         </>
                     )}
@@ -100,22 +92,19 @@ function Buscar() {
                     <div className="caracteristicas-tree">
                         {renderTree(arbol)}
                     </div>
-                    <button
-                        className="btn btn-primary btn-buscar"
-                        onClick={handleBuscar}
-                        disabled={loading}>
+                    <button className="btn btn-primary btn-buscar"
+                            onClick={handleBuscar} disabled={loading}>
                         {loading ? 'Buscando...' : 'Buscar'}
                     </button>
                     {seleccionadas.length > 0 && (
-                        <button
-                            className="btn btn-secondary btn-buscar"
-                            onClick={handleLimpiar}>
+                        <button className="btn btn-secondary btn-buscar"
+                                onClick={handleLimpiar}>
                             Limpiar filtros
                         </button>
                     )}
                 </div>
 
-                {/* Panel derecho: resultados */}
+                {/* Panel derecho: resultados usando PuestoCard con popup flotante */}
                 <div className="buscar-resultados">
                     <h3>
                         Resultados
@@ -132,33 +121,18 @@ function Buscar() {
                         <p className="empty-msg">No se encontraron puestos con esas características.</p>
                     )}
 
-                    <div className="resultados-grid">
+                    {/* Mismo PuestoCard del Home — incluye popup flotante y modal de detalle */}
+                    <div className="puestos-grid">
                         {resultados.map(p => (
-                            <div
+                            <PuestoCard
                                 key={p.id}
-                                className="resultado-card resultado-card--clickable"
-                                onClick={() => setSelectedPuesto(p)}>
-                                <strong className="card-empresa">{p.empresa?.nombre}</strong>
-                                <p className="card-descripcion">{p.descripcion}</p>
-                                <p className="card-salario">
-                                    ₡ {p.salario?.toLocaleString('es-CR')}
-                                </p>
-                                {p.tipo === 'PRIVADO' && (
-                                    <span className="badge-privado">🔒 Privado</span>
-                                )}
-                                <span className="resultado-hint">Clic para ver detalle</span>
-                            </div>
+                                puesto={p}
+                                allCaracteristicas={caracteristicas}
+                            />
                         ))}
                     </div>
                 </div>
             </div>
-
-            {/* Modal de detalle al hacer clic en un resultado */}
-            <DetalleModal
-                puesto={selectedPuesto}
-                allCaracteristicas={caracteristicas}
-                onClose={() => setSelectedPuesto(null)}
-            />
         </div>
     )
 }
