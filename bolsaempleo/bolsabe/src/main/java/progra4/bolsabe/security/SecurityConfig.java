@@ -82,6 +82,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/oferentes/*/habilidades/*").hasRole("OFERENTE")
                         .requestMatchers(HttpMethod.POST,   "/api/oferentes/*/curriculum").hasRole("OFERENTE")
 
+                        // Aplicaciones
+                        .requestMatchers(HttpMethod.POST,   "/api/aplicaciones").hasRole("OFERENTE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/aplicaciones/*").hasRole("OFERENTE")
+                        .requestMatchers(HttpMethod.GET,    "/api/aplicaciones/oferente/*").hasRole("OFERENTE")
+                        .requestMatchers(HttpMethod.GET,    "/api/aplicaciones/puesto/*").hasRole("EMPRESA")
+
                         // ── TODO LO DEMÁS requiere autenticación ──────────────────
                         .anyRequest().authenticated()
                 )

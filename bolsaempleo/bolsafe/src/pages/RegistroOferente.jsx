@@ -48,7 +48,7 @@ function RegistroOferente() {
                 return
             }
 
-            setMensaje('✅ Registro exitoso. Su solicitud está pendiente de aprobación por el administrador.')
+            setMensaje('Registro exitoso. Su solicitud está pendiente de aprobación por el administrador.')
             setOferente(initialState)
 
         } catch {

@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext'
 function Navbar() {
     const { user, logout, setLoginModalOpen } = useAuth()
 
-    // Ruta del dashboard según el rol del usuario
     const dashboardPath =
         user?.rol === 'ADMIN'    ? '/admin/dashboard'    :
             user?.rol === 'EMPRESA'  ? '/empresa/dashboard'  :
@@ -13,7 +12,6 @@ function Navbar() {
     return (
         <nav className="navbar">
             <NavLink to="/" className="nav-brand">
-                <span className="brand-icon">💼</span>
                 BolsaEmpleo
             </NavLink>
 
@@ -33,25 +31,23 @@ function Navbar() {
                     Oferente
                 </NavLink>
 
-                {/* Sin login: botón Login */}
                 {!user && (
                     <button className="nav-link btn-login" onClick={() => setLoginModalOpen(true)}>
                         Login
                     </button>
                 )}
 
-                {/* Con login: Dashboard + nombre + Salir */}
                 {user && (
                     <div className="nav-user">
                         <NavLink
                             to={dashboardPath}
                             className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-                            🏠 Mi Panel
+                            Mi Panel
                         </NavLink>
                         <span className="nav-user-info">
-              <strong>{user.nombre}</strong>
-              <small>({user.rol})</small>
-            </span>
+                            <strong>{user.nombre}</strong>
+                            <small>({user.rol})</small>
+                        </span>
                         <button className="btn-logout" onClick={logout}>Salir</button>
                     </div>
                 )}

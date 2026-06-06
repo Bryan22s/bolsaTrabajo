@@ -47,7 +47,7 @@ function RegistroEmpresa() {
                 return
             }
 
-            setMensaje('✅ Registro exitoso. Su solicitud está pendiente de aprobación por el administrador.')
+            setMensaje('Registro exitoso. Su solicitud está pendiente de aprobación por el administrador.')
             setEmpresa(initialState)
 
         } catch {

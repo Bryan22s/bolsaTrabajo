@@ -19,9 +19,13 @@ function DashboardOferente() {
     const [msgCv, setMsgCv]                 = useState('')
     const fileRef = useRef(null)
 
+    const [aplicaciones, setAplicaciones] = useState([])
+    const [loadingApl, setLoadingApl]     = useState(false)
+
     useEffect(() => {
         fetchHabilidades()
         fetchOferenteInfo()
+        fetchAplicaciones()
         apiFetch('/api/caracteristicas')
             .then(r => r.json())
             .then(setCaracteristicas)
@@ -44,6 +48,15 @@ function DashboardOferente() {
             .catch(console.error)
     }
 
+    const fetchAplicaciones = () => {
+        setLoadingApl(true)
+        apiFetch(`/api/aplicaciones/oferente/${user.id}`)
+            .then(r => r.json())
+            .then(setAplicaciones)
+            .catch(console.error)
+            .finally(() => setLoadingApl(false))
+    }
+
     const agregarHabilidad = async () => {
         if (!caractSel) return
         setSavingHab(true)
@@ -58,10 +71,10 @@ function DashboardOferente() {
             })
             setCaractSel('')
             setNivelSel(1)
-            setMsgHab('✅ Habilidad agregada.')
+            setMsgHab('Habilidad agregada correctamente.')
             fetchHabilidades()
         } catch (err) {
-            setMsgHab('❌ Error: ' + err.message)
+            setMsgHab('Error: ' + err.message)
         } finally {
             setSavingHab(false)
         }
@@ -80,7 +93,7 @@ function DashboardOferente() {
         const file = fileRef.current?.files[0]
         if (!file) return
         if (file.type !== 'application/pdf') {
-            setMsgCv('❌ Solo se permiten archivos PDF.')
+            setMsgCv('Solo se permiten archivos PDF.')
             return
         }
         setUploading(true)
@@ -89,7 +102,6 @@ function DashboardOferente() {
             const formData = new FormData()
             formData.append('file', file)
             const token = getToken()
-            // URL RELATIVA: funciona en dev (proxy Vite) y producción (mismo servidor)
             const response = await fetch(`/api/oferentes/${user.id}/curriculum`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` },
@@ -98,10 +110,10 @@ function DashboardOferente() {
             if (!response.ok) throw new Error('Error al subir el archivo')
             const data = await response.json()
             setCurriculumUrl(data.curriculumUrl)
-            setMsgCv('✅ Currículo subido correctamente.')
+            setMsgCv('Curriculo subido correctamente.')
             if (fileRef.current) fileRef.current.value = ''
         } catch (err) {
-            setMsgCv('❌ Error al subir: ' + err.message)
+            setMsgCv('Error al subir: ' + err.message)
         } finally {
             setUploading(false)
         }
@@ -115,7 +127,6 @@ function DashboardOferente() {
     return (
         <div className="dashboard-page">
             <div className="dashboard-header">
-                <span className="dashboard-icon">👤</span>
                 <div>
                     <h2 className="dashboard-title">{user.nombre}</h2>
                     <p className="dashboard-subtitle">Panel de Oferente</p>
@@ -125,11 +136,15 @@ function DashboardOferente() {
             <div className="dash-tabs">
                 <button className={`dash-tab ${tab === 'habilidades' ? 'active' : ''}`}
                         onClick={() => setTab('habilidades')}>
-                    🎯 Mis Habilidades
+                    Mis Habilidades
                 </button>
                 <button className={`dash-tab ${tab === 'curriculum' ? 'active' : ''}`}
                         onClick={() => setTab('curriculum')}>
-                    📄 Mi Currículo
+                    Mi Curriculo
+                </button>
+                <button className={`dash-tab ${tab === 'aplicaciones' ? 'active' : ''}`}
+                        onClick={() => setTab('aplicaciones')}>
+                    Mis Aplicaciones
                 </button>
             </div>
 
@@ -162,15 +177,15 @@ function DashboardOferente() {
                                 </button>
                             </div>
                         </div>
-                        {msgHab && <p className={msgHab.startsWith('✅') ? 'success-msg' : 'error-msg'}>{msgHab}</p>}
+                        {msgHab && <p className={msgHab.startsWith('Habilidad') ? 'success-msg' : 'error-msg'}>{msgHab}</p>}
                     </div>
 
                     {loadingHab && <p className="loading-msg">Cargando habilidades...</p>}
-                    {!loadingHab && habilidades.length === 0 && <p className="empty-msg">Aún no ha registrado habilidades.</p>}
+                    {!loadingHab && habilidades.length === 0 && <p className="empty-msg">Aun no ha registrado habilidades.</p>}
                     {!loadingHab && habilidades.length > 0 && (
                         <div className="table-wrapper">
                             <table className="dash-table">
-                                <thead><tr><th>Habilidad</th><th>Nivel</th><th>Acción</th></tr></thead>
+                                <thead><tr><th>Habilidad</th><th>Nivel</th><th>Accion</th></tr></thead>
                                 <tbody>
                                 {habilidades.map(h => (
                                     <tr key={h.id}>
@@ -199,39 +214,71 @@ function DashboardOferente() {
 
             {tab === 'curriculum' && (
                 <div className="dash-section">
-                    <h3 className="dash-section-title">Mi Currículo (PDF)</h3>
+                    <h3 className="dash-section-title">Mi Curriculo (PDF)</h3>
                     <div className="form-card">
                         {curriculumUrl ? (
                             <div className="cv-actual">
-                                <span className="cv-icon">📄</span>
                                 <div>
-                                    <p><strong>Currículo actual:</strong></p>
-                                    {/* URL relativa: funciona en dev y producción */}
+                                    <p><strong>Curriculo actual:</strong></p>
                                     <a href={curriculumUrl} target="_blank" rel="noreferrer" className="cv-link">
-                                        Ver / Descargar mi currículo
+                                        Ver / Descargar mi curriculo
                                     </a>
                                 </div>
                             </div>
                         ) : (
-                            <p className="empty-msg">Aún no ha subido un currículo.</p>
+                            <p className="empty-msg">Aun no ha subido un curriculo.</p>
                         )}
 
-                        <hr style={{ border: 'none', borderTop: '1px solid #eee', margin: '8px 0' }} />
-                        <h4>{curriculumUrl ? 'Reemplazar currículo' : 'Subir currículo'}</h4>
-                        <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: 8 }}>
-                            Solo se aceptan archivos PDF. Si ya tiene uno, será reemplazado.
+                        <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '8px 0' }} />
+                        <h4>{curriculumUrl ? 'Reemplazar curriculo' : 'Subir curriculo'}</h4>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 8 }}>
+                            Solo se aceptan archivos PDF. Si ya tiene uno, sera reemplazado.
                         </p>
                         <div className="form-group">
                             <label>Seleccionar archivo PDF</label>
                             <input ref={fileRef} type="file" accept="application/pdf" className="form-input" />
                         </div>
-                        {msgCv && <p className={msgCv.startsWith('✅') ? 'success-msg' : 'error-msg'}>{msgCv}</p>}
+                        {msgCv && <p className={msgCv.startsWith('Curriculo') ? 'success-msg' : 'error-msg'}>{msgCv}</p>}
                         <div className="form-actions">
                             <button className="btn btn-primary" onClick={subirCurriculum} disabled={uploading}>
-                                {uploading ? 'Subiendo...' : '📤 Subir PDF'}
+                                {uploading ? 'Subiendo...' : 'Subir PDF'}
                             </button>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {tab === 'aplicaciones' && (
+                <div className="dash-section">
+                    <h3 className="dash-section-title">Mis aplicaciones</h3>
+                    {loadingApl && <p className="loading-msg">Cargando...</p>}
+                    {!loadingApl && aplicaciones.length === 0 && (
+                        <p className="empty-msg">Aun no ha aplicado a ningun puesto.</p>
+                    )}
+                    {!loadingApl && aplicaciones.length > 0 && (
+                        <div className="table-wrapper">
+                            <table className="dash-table">
+                                <thead>
+                                <tr>
+                                    <th>Empresa</th>
+                                    <th>Descripcion</th>
+                                    <th>Salario</th>
+                                    <th>Fecha de aplicacion</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {aplicaciones.map(a => (
+                                    <tr key={a.id}>
+                                        <td>{a.puesto?.empresa?.nombre}</td>
+                                        <td>{a.puesto?.descripcion}</td>
+                                        <td>₡ {a.puesto?.salario?.toLocaleString('es-CR')}</td>
+                                        <td>{new Date(a.fechaAplicacion).toLocaleDateString('es-CR')}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

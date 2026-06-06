@@ -1,38 +1,25 @@
 import { useState, useEffect } from 'react'
 import { apiFetch } from '../../services/api'
 
-/**
- * DashboardAdmin: tablero del administrador.
- *
- * Secciones:
- *  1. Empresas pendientes de aprobación
- *  2. Oferentes pendientes de aprobación
- *  3. Gestión del catálogo jerárquico de características
- */
 function DashboardAdmin() {
-    // ── Estado: empresas pendientes ─────────────────────────────────────
     const [empresas, setEmpresas]       = useState([])
     const [loadingEmp, setLoadingEmp]   = useState(true)
 
-    // ── Estado: oferentes pendientes ────────────────────────────────────
     const [oferentes, setOferentes]     = useState([])
     const [loadingOfer, setLoadingOfer] = useState(true)
 
-    // ── Estado: características ──────────────────────────────────────────
-    const [caracteristicas, setCaracteristicas]   = useState([])
-    const [loadingCaract, setLoadingCaract]        = useState(true)
-    const [nuevaNombre, setNuevaNombre]            = useState('')
-    const [nuevoPadreId, setNuevoPadreId]          = useState('')
-    const [savingCaract, setSavingCaract]          = useState(false)
-    const [msgCaract, setMsgCaract]                = useState('')
+    const [caracteristicas, setCaracteristicas] = useState([])
+    const [loadingCaract, setLoadingCaract]      = useState(true)
+    const [nuevaNombre, setNuevaNombre]          = useState('')
+    const [nuevoPadreId, setNuevoPadreId]        = useState('')
+    const [savingCaract, setSavingCaract]        = useState(false)
+    const [msgCaract, setMsgCaract]              = useState('')
 
-    // ── Pestaña activa ───────────────────────────────────────────────────
     const [tab, setTab] = useState('empresas')
 
-    // ── Carga inicial ────────────────────────────────────────────────────
-    useEffect(() => { fetchEmpresas()    }, [])
-    useEffect(() => { fetchOferentes()   }, [])
-    useEffect(() => { fetchCaract()      }, [])
+    useEffect(() => { fetchEmpresas()  }, [])
+    useEffect(() => { fetchOferentes() }, [])
+    useEffect(() => { fetchCaract()    }, [])
 
     const fetchEmpresas = () => {
         setLoadingEmp(true)
@@ -61,7 +48,6 @@ function DashboardAdmin() {
             .finally(() => setLoadingCaract(false))
     }
 
-    // ── Aprobar empresa ──────────────────────────────────────────────────
     const aprobarEmpresa = async (cedula) => {
         try {
             await apiFetch(`/api/empresas/${cedula}/aprobar`, { method: 'PUT' })
@@ -71,7 +57,6 @@ function DashboardAdmin() {
         }
     }
 
-    // ── Aprobar oferente ─────────────────────────────────────────────────
     const aprobarOferente = async (cedula) => {
         try {
             await apiFetch(`/api/oferentes/${cedula}/aprobar`, { method: 'PUT' })
@@ -81,7 +66,6 @@ function DashboardAdmin() {
         }
     }
 
-    // ── Crear característica ─────────────────────────────────────────────
     const crearCaracteristica = async () => {
         if (!nuevaNombre.trim()) return
         setSavingCaract(true)
@@ -97,18 +81,17 @@ function DashboardAdmin() {
             })
             setNuevaNombre('')
             setNuevoPadreId('')
-            setMsgCaract('✅ Característica creada correctamente.')
+            setMsgCaract('Caracteristica creada correctamente.')
             fetchCaract()
         } catch (err) {
-            setMsgCaract('❌ Error: ' + err.message)
+            setMsgCaract('Error: ' + err.message)
         } finally {
             setSavingCaract(false)
         }
     }
 
-    // ── Eliminar característica ──────────────────────────────────────────
     const eliminarCaracteristica = async (id, nombre) => {
-        if (!confirm(`¿Eliminar "${nombre}"? Esto también eliminará sus hijos.`)) return
+        if (!confirm(`Eliminar "${nombre}"? Esto tambien eliminara sus hijos.`)) return
         try {
             await apiFetch(`/api/caracteristicas/${id}`, { method: 'DELETE' })
             fetchCaract()
@@ -117,7 +100,6 @@ function DashboardAdmin() {
         }
     }
 
-    // ── Árbol de características (para selector de padre) ────────────────
     const buildTree = (items, parentId = null) =>
         items
             .filter(i => i.padreId === parentId)
@@ -129,7 +111,7 @@ function DashboardAdmin() {
                 <td style={{ paddingLeft: nivel * 20 + 10 }}>
                     {'— '.repeat(nivel)}{nodo.nombre}
                 </td>
-                <td className="caract-level">{nodo.padreId ? 'Sub-categoría' : 'Categoría raíz'}</td>
+                <td className="caract-level">{nodo.padreId ? 'Sub-categoria' : 'Categoria raiz'}</td>
                 <td>
                     <button
                         className="btn-table-danger"
@@ -144,53 +126,50 @@ function DashboardAdmin() {
     return (
         <div className="dashboard-page">
             <div className="dashboard-header">
-                <span className="dashboard-icon">🛡️</span>
                 <div>
-                    <h2 className="dashboard-title">Panel de Administración</h2>
-                    <p className="dashboard-subtitle">Gestión de usuarios y catálogo del sistema</p>
+                    <h2 className="dashboard-title">Panel de Administracion</h2>
+                    <p className="dashboard-subtitle">Gestion de usuarios y catalogo del sistema</p>
                 </div>
             </div>
 
-            {/* Pestañas */}
             <div className="dash-tabs">
                 <button
                     className={`dash-tab ${tab === 'empresas' ? 'active' : ''}`}
                     onClick={() => setTab('empresas')}>
-                    🏢 Empresas pendientes
+                    Empresas pendientes
                     {empresas.length > 0 && <span className="badge">{empresas.length}</span>}
                 </button>
                 <button
                     className={`dash-tab ${tab === 'oferentes' ? 'active' : ''}`}
                     onClick={() => setTab('oferentes')}>
-                    👤 Oferentes pendientes
+                    Oferentes pendientes
                     {oferentes.length > 0 && <span className="badge">{oferentes.length}</span>}
                 </button>
                 <button
                     className={`dash-tab ${tab === 'caracteristicas' ? 'active' : ''}`}
                     onClick={() => setTab('caracteristicas')}>
-                    🏷️ Características
+                    Caracteristicas
                 </button>
             </div>
 
-            {/* ── TAB: EMPRESAS PENDIENTES ── */}
             {tab === 'empresas' && (
                 <div className="dash-section">
-                    <h3 className="dash-section-title">Empresas pendientes de aprobación</h3>
+                    <h3 className="dash-section-title">Empresas pendientes de aprobacion</h3>
                     {loadingEmp && <p className="loading-msg">Cargando...</p>}
                     {!loadingEmp && empresas.length === 0 && (
-                        <p className="empty-msg">✅ No hay empresas pendientes.</p>
+                        <p className="empty-msg">No hay empresas pendientes.</p>
                     )}
                     {!loadingEmp && empresas.length > 0 && (
                         <div className="table-wrapper">
                             <table className="dash-table">
                                 <thead>
                                 <tr>
-                                    <th>Cédula Jurídica</th>
+                                    <th>Cedula Juridica</th>
                                     <th>Nombre</th>
                                     <th>Correo</th>
-                                    <th>Teléfono</th>
-                                    <th>Localización</th>
-                                    <th>Acción</th>
+                                    <th>Telefono</th>
+                                    <th>Localizacion</th>
+                                    <th>Accion</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -205,7 +184,7 @@ function DashboardAdmin() {
                                             <button
                                                 className="btn-table-success"
                                                 onClick={() => aprobarEmpresa(e.cedulaJuridica)}>
-                                                ✅ Aprobar
+                                                Aprobar
                                             </button>
                                         </td>
                                     </tr>
@@ -217,25 +196,24 @@ function DashboardAdmin() {
                 </div>
             )}
 
-            {/* ── TAB: OFERENTES PENDIENTES ── */}
             {tab === 'oferentes' && (
                 <div className="dash-section">
-                    <h3 className="dash-section-title">Oferentes pendientes de aprobación</h3>
+                    <h3 className="dash-section-title">Oferentes pendientes de aprobacion</h3>
                     {loadingOfer && <p className="loading-msg">Cargando...</p>}
                     {!loadingOfer && oferentes.length === 0 && (
-                        <p className="empty-msg">✅ No hay oferentes pendientes.</p>
+                        <p className="empty-msg">No hay oferentes pendientes.</p>
                     )}
                     {!loadingOfer && oferentes.length > 0 && (
                         <div className="table-wrapper">
                             <table className="dash-table">
                                 <thead>
                                 <tr>
-                                    <th>Cédula</th>
+                                    <th>Cedula</th>
                                     <th>Nombre</th>
                                     <th>Correo</th>
-                                    <th>Teléfono</th>
+                                    <th>Telefono</th>
                                     <th>Residencia</th>
-                                    <th>Acción</th>
+                                    <th>Accion</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -250,7 +228,7 @@ function DashboardAdmin() {
                                             <button
                                                 className="btn-table-success"
                                                 onClick={() => aprobarOferente(o.cedula)}>
-                                                ✅ Aprobar
+                                                Aprobar
                                             </button>
                                         </td>
                                     </tr>
@@ -262,14 +240,12 @@ function DashboardAdmin() {
                 </div>
             )}
 
-            {/* ── TAB: CARACTERÍSTICAS ── */}
             {tab === 'caracteristicas' && (
                 <div className="dash-section">
-                    <h3 className="dash-section-title">Catálogo de Características</h3>
+                    <h3 className="dash-section-title">Catalogo de Caracteristicas</h3>
 
-                    {/* Formulario para agregar */}
                     <div className="caract-form">
-                        <h4>Agregar nueva característica</h4>
+                        <h4>Agregar nueva caracteristica</h4>
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Nombre *</label>
@@ -281,12 +257,12 @@ function DashboardAdmin() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Categoría padre (opcional)</label>
+                                <label>Categoria padre (opcional)</label>
                                 <select
                                     className="form-input"
                                     value={nuevoPadreId}
                                     onChange={e => setNuevoPadreId(e.target.value)}>
-                                    <option value="">— Raíz (sin padre) —</option>
+                                    <option value="">— Raiz (sin padre) —</option>
                                     {caracteristicas
                                         .filter(c => c.padreId === null)
                                         .map(c => (
@@ -296,7 +272,7 @@ function DashboardAdmin() {
                             </div>
                         </div>
                         {msgCaract && (
-                            <p className={msgCaract.startsWith('✅') ? 'success-msg' : 'error-msg'}>
+                            <p className={msgCaract.startsWith('Caracteristica') ? 'success-msg' : 'error-msg'}>
                                 {msgCaract}
                             </p>
                         )}
@@ -304,11 +280,10 @@ function DashboardAdmin() {
                             className="btn btn-primary"
                             onClick={crearCaracteristica}
                             disabled={savingCaract || !nuevaNombre.trim()}>
-                            {savingCaract ? 'Guardando...' : 'Agregar Característica'}
+                            {savingCaract ? 'Guardando...' : 'Agregar Caracteristica'}
                         </button>
                     </div>
 
-                    {/* Tabla árbol */}
                     {loadingCaract && <p className="loading-msg">Cargando...</p>}
                     {!loadingCaract && (
                         <div className="table-wrapper" style={{ marginTop: 20 }}>
@@ -317,7 +292,7 @@ function DashboardAdmin() {
                                 <tr>
                                     <th>Nombre</th>
                                     <th>Tipo</th>
-                                    <th>Acción</th>
+                                    <th>Accion</th>
                                 </tr>
                                 </thead>
                                 <tbody>
